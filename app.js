@@ -6,7 +6,7 @@
 
 const STORE_KEY = 'meuprogresso.v1';
 const META_CACHE = 'meuprogresso-meta';
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.1';
 
 const MEASURES = [
   { key: 'waist', label: 'Cintura', short: 'Cint.', color: 'var(--c-waist)', lowerIsBetter: true },
@@ -28,8 +28,15 @@ const SEED = {
     { date: '2026-09-04', weight: 105.75, waist: 121, hip: 111, thigh: 64, arm: 38 },
     { date: '2026-09-11', weight: 103.5,  waist: 117, hip: 109, thigh: 61, arm: 39 },
     { date: '2026-09-18', weight: 103.25, waist: 115, hip: 108, thigh: 61, arm: 40 },
+    { date: '2026-09-25', weight: 103.05, waist: 110, hip: 108, thigh: 63.5, arm: 41 },
   ],
 };
+
+// Registros enviados junto com uma atualização do app. Cada um é aplicado uma única vez
+// e nunca sobrescreve um registro que já exista na mesma data.
+const DATA_UPDATES = [
+  { id: 'medicao-2026-09-25', entry: { date: '2026-09-25', weight: 103.05, waist: 110, hip: 108, thigh: 63.5, arm: 41 } },
+];
 
 /* ---------- Utilidades ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -67,13 +74,23 @@ function load() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       const d = JSON.parse(raw);
-      if (d && Array.isArray(d.entries)) return normalize(d);
+      if (d && Array.isArray(d.entries)) return normalize(applyDataUpdates(d));
     }
   } catch (e) { /* armazenamento indisponível */ }
-  return clone(SEED);
+  return normalize(applyDataUpdates(clone(SEED)));
+}
+function applyDataUpdates(d) {
+  d.applied = Array.isArray(d.applied) ? d.applied : [];
+  DATA_UPDATES.forEach(u => {
+    if (d.applied.includes(u.id)) return;
+    if (!d.entries.some(e => e.date === u.entry.date)) d.entries.push(clone(u.entry));
+    d.applied.push(u.id);
+  });
+  return d;
 }
 function normalize(d) {
   d.settings = Object.assign({}, SEED.settings, d.settings || {});
+  if (!Array.isArray(d.applied)) d.applied = [];
   d.entries = d.entries.filter(e => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).sort(byDate);
   return d;
 }
@@ -775,7 +792,8 @@ $('#import-file').addEventListener('change', async e => {
     });
     const ok = await confirmBox('Importar backup?', `${entries.length} registros serão carregados e vão substituir os dados atuais.`, 'Importar');
     if (!ok) return;
-    state = normalize({ version: 1, settings: data.settings || state.settings, entries });
+    // O arquivo importado vale como está: as atualizações de dados não são reaplicadas sobre ele
+    state = normalize({ version: 1, settings: data.settings || state.settings, entries, applied: DATA_UPDATES.map(u => u.id) });
     save(); render(); toast('Backup importado.');
   } catch (err) {
     toast('Arquivo inválido. Use um backup exportado pelo app.');
