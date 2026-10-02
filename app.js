@@ -6,7 +6,7 @@
 
 const STORE_KEY = 'meuprogresso.v1';
 const META_CACHE = 'meuprogresso-meta';
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 
 const MEASURES = [
   { key: 'waist', label: 'Cintura', short: 'Cint.', color: 'var(--c-waist)', lowerIsBetter: true },
@@ -29,6 +29,7 @@ const SEED = {
     { date: '2026-09-11', weight: 103.5,  waist: 117, hip: 109, thigh: 61, arm: 39 },
     { date: '2026-09-18', weight: 103.25, waist: 115, hip: 108, thigh: 61, arm: 40 },
     { date: '2026-09-25', weight: 103.05, waist: 110, hip: 108, thigh: 63.5, arm: 41 },
+    { date: '2026-10-02', weight: 103.05, waist: 109.5, hip: 108.5, thigh: 63, arm: 41.5 },
   ],
 };
 
@@ -36,6 +37,7 @@ const SEED = {
 // e nunca sobrescreve um registro que já exista na mesma data.
 const DATA_UPDATES = [
   { id: 'medicao-2026-09-25', entry: { date: '2026-09-25', weight: 103.05, waist: 110, hip: 108, thigh: 63.5, arm: 41 } },
+  { id: 'medicao-2026-10-02', entry: { date: '2026-10-02', weight: 103.05, waist: 109.5, hip: 108.5, thigh: 63, arm: 41.5 } },
 ];
 
 /* ---------- Utilidades ---------- */

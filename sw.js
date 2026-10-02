@@ -1,5 +1,5 @@
 /* Service worker — funcionamento offline e lembrete semanal */
-const CACHE = 'meuprogresso-v2';
+const CACHE = 'meuprogresso-v3';
 const META_CACHE = 'meuprogresso-meta';
 const ASSETS = [
   './',
